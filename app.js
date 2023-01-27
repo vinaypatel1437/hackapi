@@ -5,8 +5,9 @@ const dotenv = require("dotenv");
 dotenv.config();
 const pdf2html = require('pdf2html');
 const app = express();
-const gmailRouter = require("./routers/gmail");
-const formsRouter = require("./routers/forms");
+require("./src/db/conn");
+const gmailRouter = require("./src/routers/gmail");
+const formsRouter = require("./src/routers/forms");
 
 const port = process.env.PORT || 8000;
 app.use(express.json());
