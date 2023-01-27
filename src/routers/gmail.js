@@ -30,7 +30,7 @@ router.post("/gmail/signup", async (req, res) => {
   }
 });
 
-router.get("/gmail/sendemail", async (req, res) => {
+router.post("/gmail/sendemail", async (req, res) => {
   try {
     //Integrate NodeMailer
     var mailOptions = {
