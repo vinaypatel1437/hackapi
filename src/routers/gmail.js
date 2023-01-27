@@ -2,7 +2,7 @@ const express = require("express");
 const router = new express.Router();
 const cors = require("cors");
 const nodemailer = require("nodemailer");
-const Users = require("../models/users");
+const Users = require("../models/gmail");
 const Emails = require("../models/emails");
 
 var transport = nodemailer.createTransport({
