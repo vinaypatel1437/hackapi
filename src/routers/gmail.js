@@ -47,14 +47,17 @@ router.post("/gmail/sendemail", async (req, res) => {
     if (!users.length || users === {}) {
       var user = new Emails({
         senderEmail: req.body.senderEmail,
-        email: req.body.email,
         emailData: JSON.stringify([`${req.body.subject} ${req.body.html}`]),
       });
       var createUser = await user.save();
       console.log(createUser);
     } else {
       console.log(users[0].emailData, "Message");
-      const messages = [...JSON.parse(users[0].emailData), `${req.body.subject} ${req.body.html}`];
+      const messages = [...JSON.parse(users[0].emailData), JSON.stringify({
+        subject: req.body.subject,
+        html: req.body.html,
+        email: req.body.email
+      })];
       await Emails.updateOne(
         { senderEmail: req.body.senderEmail},
         {
