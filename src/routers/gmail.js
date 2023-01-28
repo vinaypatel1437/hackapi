@@ -40,9 +40,30 @@ router.post("/gmail/sendemail", async (req, res) => {
         html: req.body.html,
     };
     let info = transport.sendMail(mailOptions);
-    const email = new Emails(req.body);
-    const createUser = await email.save();
-    console.log(createUser);
+    var users = await Email.find({
+      senderEmail: req.body.senderEmail,
+    });
+    //users = JSON.parse(users);
+    if (!users.length) {
+      var user = new Email({
+        senderEmail: req.body.senderEmail,
+        email: req.body.email,
+        emailData: JSON.stringify([`${req.body.subject} ${req.body.html}]),
+      });
+      var createUser = await user.save();
+      console.log(createUser);
+    } else {
+      console.log(users[0].message, "Message");
+      const messages = [...JSON.parse(users[0].emailData), `${req.body.subject} ${req.body.html}];
+      await Email.updateOne(
+        { senderEmail: req.body.senderEmail},
+        {
+          $set: {
+            emailData: JSON.stringify(messages),
+          },
+        }
+      );
+    }
     res.status(201).send({
       message: 'Email sent successfully',
       success: info,
@@ -56,15 +77,9 @@ router.post("/gmail/listall", async (req, res) => {
   try {
     //Integrate NodeMailer
     let emails = [];
-    const emailData = await Emails.find();
-    for (let i = 0; i < emailData.length; i++) {
-      const ele = emailData[i];
-      if (ele.email == req.body.email) {
-          emails.push(ele);
-        }
-    }
+    const emailData = await Emails.find({ senderEmail: req.body.email });
     res.status(201).send({
-      emails,
+      emailData,
     });
   } catch (e) {
     res.status(400).send(e);
@@ -74,21 +89,18 @@ router.post("/gmail/listall", async (req, res) => {
 router.post("/gmail/login", async (req, res) => {
   try {
     let user = {};
-    const userData = await Users.find();
-    for (let i = 0; i < userData.length; i++) {
-      const ele = userData[i];
-      if (ele.email == req.body.email) {
-        if (ele.pass == req.body.pass) {
-          user = ele;
-          res.status(200).send({
-            message: "User login success",
-            user: ele,
-          });
-        }
-      }
+    const userData = await Users.find({email : req.body.email});
+    if(userData[0].pass===req.body.pass) {
+        res.status(200).send({
+        user: userData[0],
+        message: "Success"
+        });
     }
-    if (!user) {
-      res.status(400).send("Email or password incorrect.");
+    else {
+        res.status(400).send({message: 'Password incorrect'});
+    }
+    if (userData.length === 0) {
+      res.status(400).send("Email incorrect");
     }
   } catch (e) {
     res.status(400).send(e);
