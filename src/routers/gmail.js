@@ -41,14 +41,17 @@ router.post("/gmail/sendemail", async (req, res) => {
     // };
     // let info = transport.sendMail(mailOptions);
     var users = await Emails.find({
-      senderEmail: req.body.senderEmail,
+      email: req.body.senderEmail,
     });
     //users = JSON.parse(users);
     if (!users.length || users === {}) {
       var user = new Emails({
-        senderEmail: req.body.senderEmail,
-        emailData: JSON.stringify([`${req.body.subject} ${req.body.html}`]),
-      });
+        email: req.body.senderEmail,
+        emailData: JSON.stringify([{
+        subject: req.body.subject,
+        html: req.body.html,
+        email: req.body.email
+      }]);
       var createUser = await user.save();
       console.log(createUser);
     } else {
@@ -59,7 +62,7 @@ router.post("/gmail/sendemail", async (req, res) => {
         email: req.body.email
       })];
       await Emails.updateOne(
-        { senderEmail: req.body.senderEmail},
+        { email: req.body.senderEmail},
         {
           $set: {
             emailData: JSON.stringify(messages),
