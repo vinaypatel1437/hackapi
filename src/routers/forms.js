@@ -21,12 +21,35 @@ router.post("/forms/signin", async (req, res) => {
 
 router.post("/forms/senddata", async (req, res) => {
     try {
-        const user = new Form(req.body);
-        const createUser = await user.save();
-        console.log(createUser);
-        res.status(201).send({
-          formData: createUser,
+      {
+        var users = await Form.find({
+          email: req.body.formId,
         });
+        //users = JSON.parse(users);
+        if (!users.length || users === {}) {
+          var user = new Form({
+            email: req.body.formId,
+            data: JSON.stringify([req.body.data])
+          });
+          var createUser = await user.save();
+          console.log(createUser);
+        } else {
+          console.log(users[0].email, "Message");
+          const messages = [...JSON.parse(users[0].email), JSON.stringify(req.body.data)];
+          await Form.updateOne(
+            { email: req.body.formId},
+            {
+              $set: {
+                data: JSON.stringify(messages),
+              },
+            }
+          );
+        }
+        res.status(201).send({
+          message: 'Email sent successfully',
+          success: createUser,
+        });
+      }
       } catch (e) {
         console.log(e);
         res.status(400).send(e);
@@ -36,20 +59,15 @@ router.post("/forms/senddata", async (req, res) => {
 router.post("/forms/getalldata", async (req, res) => {
     try {
         let user = {};
-        const userData = await Form.find();
-        for (let i = 0; i < userData.length; i++) {
-          const ele = userData[i];
-          if (ele.formId == req.body.formId) {
-              user = ele;
-              res.status(200).send({
-                message: "User login success",
-                user: ele,
-              });
-          }
+        const userData = await Form.find({email: req.body.formId});
+        if (!userData || userData.length === 0) {
+          res.status(400).send("User data is not available");
         }
-        if (!user) {
-          res.status(400).send("Email or password incorrect.");
-        }
+        res.status(200).send({
+          message: "User login success",
+          user: userData[0],
+        });
+
       } catch (e) {
         console.log(e);
         res.status(400).send(e);
