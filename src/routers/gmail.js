@@ -83,7 +83,7 @@ router.post("/gmail/listall", async (req, res) => {
   try {
     //Integrate NodeMailer
     let emails = [];
-    const emailData = await Emails.find({ senderEmail: req.body.email });
+    const emailData = await Emails.find({ email: req.body.email });
     res.status(201).send({
       emailData,
     });
