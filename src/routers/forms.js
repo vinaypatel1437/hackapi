@@ -35,7 +35,7 @@ router.post("/forms/senddata", async (req, res) => {
           console.log(createUser);
         } else {
           console.log(users[0].email, "Message");
-          const messages = [...JSON.parse(users[0].email), JSON.stringify(req.body.data)];
+          const messages = [...JSON.parse(users[0].data), JSON.stringify(req.body.data)];
           await Form.updateOne(
             { email: req.body.formId},
             {
