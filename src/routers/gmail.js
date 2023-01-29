@@ -51,7 +51,8 @@ router.post("/gmail/sendemail", async (req, res) => {
         subject: req.body.subject,
         html: req.body.html,
         email: req.body.email
-      }]);
+      }])
+      });
       var createUser = await user.save();
       console.log(createUser);
     } else {
